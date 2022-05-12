@@ -1,0 +1,64 @@
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    prometheus:
+      enabled: true
+    health:
+      show-details: always
+  health:
+    probes:
+      enabled: 'true'
+    circuitbreakers:
+      enabled: true
+spring:
+  cloud:
+    gcp:
+      credentials:
+        location: classpath:/test.json
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: none
+  datasource:
+    password: ''
+    driver-class-name: org.h2.Driver
+    username: sa
+    url: jdbc:h2:mem:TEST;DB_CLOSE_DELAY=-1;
+    platform: h2
+  h2:
+    console:
+      enabled: 'true'
+  settings:
+        web-allow-others: true
+server:
+  servlet:
+    context-path: /namePronounciation
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      basecbconfig:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 120s
+        failureRateThreshold: 50
+        eventConsumerBufferSize: 10
+    instances:
+      testCircuitBreaker:
+        baseConfig: basecbconfig
+chaos:
+  monkey:
+    watcher:
+      controller: 'false'
+      restController: 'false'
+      service: 'true'
+      component: 'false'
+      repository: 'false'
